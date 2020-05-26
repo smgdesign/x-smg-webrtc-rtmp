@@ -112,31 +112,31 @@ wss.on('connection', function connect(newSocket, req){
         console.log('Connection received with sessionId ' + sessionId);
     });
 
-    ws.on('error', function (error) {
+    wss.on('error', function (error) {
         console.log('Connection ' + sessionId + ' error');
         stop(sessionId);
     });
 
-    ws.on('close', function () {
+    wss.on('close', function () {
         console.log('Connection ' + sessionId + ' closed');
         stop(sessionId);
     });
 
-    ws.on('message', function (_message) {
+    wss.on('message', function (_message) {
         var message = JSON.parse(_message);
         console.log('Connection ' + sessionId + ' received message ', message);
 
         switch (message.id) {
             case 'start':
                 sessionId = request.session.id;
-                start(sessionId, ws, message.sdpOffer, function (error, sdpAnswer) {
+                start(sessionId, wss, message.sdpOffer, function (error, sdpAnswer) {
                     if (error) {
-                        return ws.send(JSON.stringify({
+                        return wss.send(JSON.stringify({
                             id: 'error',
                             message: error
                         }));
                     }
-                    ws.send(JSON.stringify({
+                    wss.send(JSON.stringify({
                         id: 'startResponse',
                         sdpAnswer: sdpAnswer
                     }));
@@ -152,7 +152,7 @@ wss.on('connection', function connect(newSocket, req){
                 break;
 
             default:
-                ws.send(JSON.stringify({
+                wss.send(JSON.stringify({
                     id: 'error',
                     message: 'Invalid message ' + message
                 }));
