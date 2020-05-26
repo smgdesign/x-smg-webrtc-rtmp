@@ -358,7 +358,7 @@ function bindFFmpeg(streamip, streamport, sdpData, ws) {
     fs.writeFileSync(streamip + '_' + streamport + '.sdp', sdpData);
     var ffmpeg_args = [
         '-protocol_whitelist', 'file,udp,rtp',
-        '-i', path.join(__dirname, streamip + '_' + streamport + '.sdp'),
+        '-i', `'${path.join(__dirname, streamip + '_' + streamport + '.sdp')}'`,
         '-vcodec', 'copy',
         '-acodec', 'copy',
         '-f', 'flv',
