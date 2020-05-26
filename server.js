@@ -112,31 +112,32 @@ wss.on('connection', function connect(newSocket, req){
         console.log('Connection received with sessionId ' + sessionId);
     });
 
-    wss.on('error', function (error) {
+    ws.on('error', function (error) {
         console.log('Connection ' + sessionId + ' error');
         stop(sessionId);
     });
 
-    wss.on('close', function () {
+    ws.on('close', function () {
         console.log('Connection ' + sessionId + ' closed');
         stop(sessionId);
     });
 
-    wss.on('message', function (_message) {
+    ws.on('message', function (_message) {
         var message = JSON.parse(_message);
         console.log('Connection ' + sessionId + ' received message ', message);
 
         switch (message.id) {
             case 'start':
                 sessionId = request.session.id;
-                start(sessionId, wss, message.sdpOffer, function (error, sdpAnswer) {
+                start(sessionId, ws, message.sdpOffer, function (error, sdpAnswer) {
                     if (error) {
-                        return wss.send(JSON.stringify({
+                        return ws.send(JSON.stringify({
                             id: 'error',
                             message: error
                         }));
                     }
-                    wss.send(JSON.stringify({
+                    console.log('sending');
+                    ws.send(JSON.stringify({
                         id: 'startResponse',
                         sdpAnswer: sdpAnswer
                     }));
@@ -152,7 +153,7 @@ wss.on('connection', function connect(newSocket, req){
                 break;
 
             default:
-                wss.send(JSON.stringify({
+                ws.send(JSON.stringify({
                     id: 'error',
                     message: 'Invalid message ' + message
                 }));
@@ -171,6 +172,8 @@ function getKurentoClient(callback) {
     if (kurentoClient !== null) {
         return callback(null, kurentoClient);
     }
+
+    console.log('getting kurento');
 
     kurento(argv.ws_uri, function (error, _kurentoClient) {
         if (error) {
@@ -196,11 +199,13 @@ function start(sessionId, ws, sdpOffer, callback) {
 
         kurentoClient.create('MediaPipeline', function (error, pipeline) {
             if (error) {
+                console.log('error in pipeline');
                 return callback(error);
             }
 
             createMediaElements(pipeline, ws, function (error, webRtcEndpoint, rtpEndpoint) {
                 if (error) {
+                    console.log('error media element');
                     pipeline.release();
                     return callback(error);
                 }
@@ -214,6 +219,7 @@ function start(sessionId, ws, sdpOffer, callback) {
 
                 connectMediaElements(webRtcEndpoint, rtpEndpoint, function (error) {
                     if (error) {
+                        console.log('error media connect');
                         pipeline.release();
                         return callback(error);
                     }
