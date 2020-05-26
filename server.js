@@ -98,9 +98,11 @@ var wss = new ws.Server({
 /*
  * Management of WebSocket messages
  */
-wss.on('connection', function (ws) {
-    var sessionId = null;
-    var request = ws.upgradeReq;
+wss.on('connection', function connect(newSocket, req){
+    //let sessionId = newSocket.upgradeReq.session.id;
+    newSocket.upgradeReq = req;
+    let sessionId;
+    let request = newSocket.upgradeReq;
     var response = {
         writeHead: {}
     };
