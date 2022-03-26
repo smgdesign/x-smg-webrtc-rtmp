@@ -10,7 +10,7 @@
     "express": "~4.12.4",
     "express-session": "~1.10.3",
     "kurento-client": "Kurento/kurento-client-js",
-    "minimist": "^1.1.1",
+    "minimist": "^1.2.6",
     "node-media-server": "^1.1.1",
     "ws": "~7.2.0"
   },
